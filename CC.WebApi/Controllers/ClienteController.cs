@@ -1,4 +1,5 @@
 ﻿using CC.Core.Domain;
+using CC.Manager.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CC.WebApi.Controllers;
@@ -6,38 +7,49 @@ namespace CC.WebApi.Controllers;
 [ApiController]
 public class ClienteController : ApiControllerBase
 {
-    [HttpGet]
-    public IActionResult Get()
+    private readonly IClienteManager _clienteManager;
+
+    public ClienteController(IClienteManager clienteManager)
     {
-        return Ok(new List<Cliente>()
-        {
-            new Cliente
-            {
-                ClienteId = 1,
-                DataNascimento = new DateTime(2003, 01, 21),
-                Nome = "Yuri"
-            }
-        });
+        _clienteManager = clienteManager;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Get()
+    {
+        return Ok(await _clienteManager.GetClientesAsync());
     }
 
     [HttpGet("{id}")]
-    public string Get(int id)
+    public async Task<IActionResult> Get(int id)
     {
-        return "value";
+        return Ok(await _clienteManager.GetClienteAsync(id));
     }
 
     [HttpPost]
-    public void Post([FromBody] string value)
+    public async Task<IActionResult> Post([FromBody] Cliente cliente)
     {
+        var clienteInserido = await _clienteManager.InsertClienteAsync(cliente);
+
+        return CreatedAtAction(nameof(Get), new { id = cliente.ClienteId }, cliente);
     }
 
-    [HttpPut("{id}")]
-    public void Put(int id, [FromBody] string value)
+    [HttpPut]
+    public async Task<IActionResult> Put([FromBody] Cliente cliente)
     {
+        var clienteAtualizado = await _clienteManager.UpdateClienteAsync(cliente);
+
+        if (clienteAtualizado == null)
+            return NotFound();
+
+        return Ok(clienteAtualizado);   
     }
 
     [HttpDelete("{id}")]
-    public void Delete(int id)
+    public async Task<IActionResult> Delete(int id)
     {
+        await _clienteManager.DeleteClienteAsync(id);
+
+        return NoContent();
     }
 }

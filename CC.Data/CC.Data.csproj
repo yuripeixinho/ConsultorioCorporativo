@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CC.Core\CC.Core.csproj" />
+    <ProjectReference Include="..\CC.Manager\CC.Manager.csproj" />
   </ItemGroup>
 
 </Project>
